@@ -21,7 +21,7 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
 
     address[] private giveawayAddresses;
 
-    string private _defaultBaseURI = "https://ipfs.io/ipfs/QmezSC7i3p9Y3EEZNeb7zgUmkFGcFK7czwNUc9WkbPFM78/";
+    string private _defaultBaseURI;
 
     constructor() ERC721("EE Comissions", "EEC") {}
 
