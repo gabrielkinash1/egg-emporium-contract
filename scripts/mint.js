@@ -1,7 +1,8 @@
+require("dotenv").config();
 const hre = require("hardhat");
 const Comissions = require("../artifacts/contracts/Comissions.sol/Comissions.json");
 
-const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const contractAddress = process.env.CONTRACT_ADDRESS;
 
 async function main() {
   const accounts = await hre.ethers.getSigners();
