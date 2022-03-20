@@ -28,6 +28,8 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
 
     uint256 public mintPrice = 350 ether;
 
+    address payable public payableAddress = payable(0xB458C783f1DFCd9063003552fD4A3Fe90F45b56c);
+
     string private _defaultBaseURI;
 
     constructor() ERC721("EE Comissions", "EEC") {
@@ -41,6 +43,8 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
         
         uint256 totalPrice = mintPrice * quantity;
         require(msg.value >= totalPrice, "Invalid amount!");
+
+        payableAddress.transfer(totalPrice);
         
         uint256 tokenId = _tokenIds.current();
         for (uint256 i = 0; i < quantity; i++) {
@@ -72,6 +76,10 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
         require(tokenId <= maxTokens, "Token limit exceeded!");
         _safeMint(to, tokenId);
         _tokenIds.increment();
+    }
+
+    function setPayableAddress(address newPayableAddress) public onlyOwner {
+        payableAddress = payable(newPayableAddress);
     }
 
     function setMintPrice(uint256 newMintPrice) public onlyOwner {
