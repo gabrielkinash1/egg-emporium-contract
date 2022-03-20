@@ -24,9 +24,7 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
 
     mapping(uint256 => string) private _tokenURIs;
 
-    constructor() ERC721("EE Comissions", "EEC") {
-        console.log("Egg Emporium Comissions contract deployed!");
-    }
+    constructor() ERC721("EE Comissions", "EEC") {}
 
     modifier whenCallerCanGiveaway() {
         if (owner() == _msgSender()) {
