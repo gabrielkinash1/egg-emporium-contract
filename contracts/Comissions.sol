@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
@@ -22,7 +21,7 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
 
     address[] private giveawayAddresses;
 
-    mapping(uint256 => string) private _tokenURIs;
+    string private _defaultBaseURI = "https://ipfs.io/ipfs/QmezSC7i3p9Y3EEZNeb7zgUmkFGcFK7czwNUc9WkbPFM78/";
 
     constructor() ERC721("EE Comissions", "EEC") {}
 
@@ -59,7 +58,6 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
 
     function internalMint(address to, uint256 tokenId) internal {
         _safeMint(to, tokenId);
-        console.log("Token '%d' mint!", tokenId);
         _tokenIds.increment();
     }
 
@@ -75,20 +73,16 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
         mintPrice = newMintPrice;
     }
 
-    function setTokenURI(uint256 tokenId, string calldata _tokenURI) public onlyOwner {
-        _tokenURIs[tokenId] = _tokenURI;
+    function setBaseURI(string calldata newBaseURI) public onlyOwner {
+        _defaultBaseURI = newBaseURI;
     }
 
     function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
-        return _tokenURIs[tokenId];
+        return string(abi.encodePacked(_baseURI(), tokenId.toString(), ".json"));
     }
 
-    function _setTokenURI(uint256 tokenId, string calldata _tokenURI) internal override(ERC721URIStorage) {
-        _tokenURIs[tokenId] = _tokenURI;
-    }
-
-    function _baseURI() internal pure override returns (string memory) {
-        return "";
+    function _baseURI() internal view override returns (string memory) {
+        return _defaultBaseURI;
     }
 
     function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
