@@ -22,7 +22,7 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
 
     address[] private giveawayAddresses;
 
-    string private _defaultBaseURI;
+    mapping(uint256 => string) private _tokenURIs;
 
     constructor() ERC721("EE Comissions", "EEC") {
         console.log("Egg Emporium Comissions contract deployed!");
@@ -77,17 +77,20 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
         mintPrice = newMintPrice;
     }
 
-    function setBaseURI(string calldata newBaseURI) public onlyOwner {
-        console.log("Base URI changed from '%s' to '%s'", _defaultBaseURI, newBaseURI);
-        _defaultBaseURI = newBaseURI;
+    function setTokenURI(uint256 tokenId, string calldata _tokenURI) public onlyOwner {
+        _tokenURIs[tokenId] = _tokenURI;
     }
 
     function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
-        return string(abi.encodePacked(_baseURI(), tokenId.toString(), ".json"));
+        return _tokenURIs[tokenId];
     }
 
-    function _baseURI() internal view override returns (string memory) {
-        return _defaultBaseURI;
+    function _setTokenURI(uint256 tokenId, string calldata _tokenURI) internal override(ERC721URIStorage) {
+        _tokenURIs[tokenId] = _tokenURI;
+    }
+
+    function _baseURI() internal pure override returns (string memory) {
+        return "";
     }
 
     function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
