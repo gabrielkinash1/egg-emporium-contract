@@ -16,19 +16,11 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
     
     Counters.Counter private _tokenIds;
 
-    Counters.Counter private _mintCount;
-
-    Counters.Counter private _giveawayCount;
-
-    uint256 public maxTokens = maxMintable + maxGiveaway;
-    
-    uint256 public maxMintable = 50;
-
-    uint256 public maxGiveaway = 10;
-
     uint256 public mintPrice = 350 ether;
 
     address payable public payableAddress = payable(0xB458C783f1DFCd9063003552fD4A3Fe90F45b56c);
+
+    address[] private giveawayAddresses;
 
     string private _defaultBaseURI;
 
@@ -37,10 +29,19 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
         _tokenIds.increment();
     }
 
+    modifier whenCallerCanGiveaway() {
+        if (owner() == _msgSender()) {
+            _;
+        } else {
+            for (uint256 i = 0; i < giveawayAddresses.length; i++) {
+                if (giveawayAddresses[i] == _msgSender() && giveawayAddresses[i] != address(0)) {
+                    _;
+                }
+            }
+        }
+    }
+
     function mint(uint256 quantity) external payable whenNotPaused {
-        uint256 amountMint = _mintCount.current();
-        require(amountMint < maxMintable && (amountMint + quantity) < maxMintable, "Mint limit exceeded!");
-        
         uint256 totalPrice = mintPrice * quantity;
         require(msg.value >= totalPrice, "Invalid amount!");
 
@@ -48,34 +49,24 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
         
         uint256 tokenId = _tokenIds.current();
         for (uint256 i = 0; i < quantity; i++) {
-            mintNFT(msg.sender, tokenId + 1);
+            internalMint(msg.sender, tokenId + 1);
         }
     }
 
-    function giveaway(uint256 quantity) external payable onlyOwner {
-        uint256 amountGiveaway = _giveawayCount.current();
-        require(amountGiveaway < maxGiveaway && (amountGiveaway + quantity) < maxGiveaway, "Mint limit exceeded!");
-        
+    function giveaway(uint256 quantity) external payable whenCallerCanGiveaway {
         uint256 tokenId = _tokenIds.current();
         for (uint256 i = 0; i < quantity; i++) {
-            giveNFT(msg.sender, tokenId + 1);
+            internalMint(msg.sender, tokenId + 1);
         }
-    }
-
-    function mintNFT(address to, uint256 tokenId) internal {
-        internalMint(to, tokenId);
-        _mintCount.increment();
-    }
-
-    function giveNFT(address to, uint256 tokenId) internal {
-        internalMint(to, tokenId);
-        _giveawayCount.increment();
     }
 
     function internalMint(address to, uint256 tokenId) internal {
-        require(tokenId <= maxTokens, "Token limit exceeded!");
         _safeMint(to, tokenId);
         _tokenIds.increment();
+    }
+
+    function addGiveawayPower(address authorizedAddress) public onlyOwner {
+        giveawayAddresses.push(authorizedAddress);
     }
 
     function setPayableAddress(address newPayableAddress) public onlyOwner {
@@ -84,14 +75,6 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
 
     function setMintPrice(uint256 newMintPrice) public onlyOwner {
         mintPrice = newMintPrice;
-    }
-
-    function setMaxMintable(uint256 newMaxMintable) public onlyOwner {
-        maxMintable = newMaxMintable;
-    }
-
-    function setMaxGiveaway(uint256 newMaxGiveaway) public onlyOwner {
-        maxGiveaway = newMaxGiveaway;
     }
 
     function setBaseURI(string calldata newBaseURI) public onlyOwner {
