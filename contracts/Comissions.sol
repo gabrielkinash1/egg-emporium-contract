@@ -26,7 +26,6 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
 
     constructor() ERC721("EE Comissions", "EEC") {
         console.log("Egg Emporium Comissions contract deployed!");
-        _tokenIds.increment();
     }
 
     modifier whenCallerCanGiveaway() {
@@ -62,6 +61,7 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
 
     function internalMint(address to, uint256 tokenId) internal {
         _safeMint(to, tokenId);
+        console.log("Token '%d' mint!", tokenId);
         _tokenIds.increment();
     }
 
