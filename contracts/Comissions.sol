@@ -45,14 +45,14 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
         
         uint256 tokenId = _tokenIds.current();
         for (uint256 i = 0; i < quantity; i++) {
-            internalMint(msg.sender, tokenId + 1);
+            internalMint(msg.sender, tokenId + i);
         }
     }
 
     function giveaway(uint256 quantity) external payable whenCallerCanGiveaway {
         uint256 tokenId = _tokenIds.current();
         for (uint256 i = 0; i < quantity; i++) {
-            internalMint(msg.sender, tokenId + 1);
+            internalMint(msg.sender, tokenId + i);
         }
     }
 
