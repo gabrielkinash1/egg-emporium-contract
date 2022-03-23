@@ -101,7 +101,7 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
     }
 
     function royaltyInfo(uint256 tokenId, uint256 salePrice) external view override (IERC2981) returns (address receiver, uint256 royaltyAmount) {
-        uint256 royaltiesValue = (mintPrice * royaltiesPercentage) / 100;
+        uint256 royaltiesValue = (salePrice * royaltiesPercentage) / 100;
         return (payableAddress, royaltiesValue);
     }
 }
