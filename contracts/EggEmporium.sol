@@ -13,13 +13,80 @@ contract EggEmporium is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausab
     using Counters for Counters.Counter;
     using Strings for uint256;
 
+    Counters.Counter private _tokenIds;
+
+    Counters.Counter private _mintCount;
+
+    Counters.Counter private _giveawayCount;
+
     string private _defaultBaseURI;
+
+    uint256 public maxTokens = 60;
+
+    uint256 public maxMintable = 50;
+
+    uint256 public maxGiveaway = 10;
+
+    uint256 public mintPrice = 200 ether;
+
+    address payable public payableAddress;
 
     constructor(string memory defaultBaseURI) ERC721("Egg Emporium", "EE") {
         _defaultBaseURI = defaultBaseURI;
     }
 
-    // continue when David answer about whitelisting
+    function mint(uint256 quantity) external payable whenNotPaused {
+        uint256 amountMint = _mintCount.current();
+        require(amountMint < maxMintable && ((amountMint + quantity) < maxMintable), "Mint limit exceeded!");
+
+        uint256 totalPrice = mintPrice * quantity;
+        require(msg.value >= totalPrice, "Invalid amount!");
+
+        payableAddress.transfer(totalPrice);
+
+        uint256 tokenId = _tokenIds.current();
+        for (uint256 i = 0; i < quantity; i++) {
+            mintNFT(msg.sender, tokenId + i);
+        }
+    }
+
+    function giveaway(address to, uint256 quantity) external payable onlyOwner {
+        uint256 amountGiveaway = _giveawayCount.current();
+        require(amountGiveaway < maxGiveaway && (amountGiveaway + quantity) < maxGiveaway, "Mint limit exceeded!");
+        
+        uint256 tokenId = _tokenIds.current();
+        for (uint256 i = 0; i < quantity; i++) {
+            giveNFT(to, tokenId + i);
+        }
+    }
+
+    function mintNFT(address to, uint256 tokenId) internal {
+        internalMint(to, tokenId);
+        _mintCount.increment();
+    }
+
+    function giveNFT(address to, uint256 tokenId) internal {
+        internalMint(to, tokenId);
+        _giveawayCount.increment();
+    }
+
+    function internalMint(address to, uint256 tokenId) internal {
+        require(tokenId <= maxTokens, "Token limit exceeded!");
+        _safeMint(to, tokenId);
+        _tokenIds.increment();
+    }
+
+    function setBaseURI(string calldata newBaseURI) public onlyOwner {
+        _defaultBaseURI = newBaseURI;
+    }
+
+    function setPayableAddress(address newPayableAddress) public onlyOwner {
+        payableAddress = payable(newPayableAddress);
+    }
+
+    function setMintPrice(uint256 newMintPrice) public onlyOwner {
+        mintPrice = newMintPrice;
+    }
 
     function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
         return string(abi.encodePacked(_baseURI(), tokenId.toString(), ".json"));
