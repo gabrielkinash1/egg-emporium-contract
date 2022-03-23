@@ -5,17 +5,20 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol";
+import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausable, Ownable {
+contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausable, Ownable, IERC2981 {
     using Counters for Counters.Counter;
     using Strings for uint256;
     
     Counters.Counter private _tokenIds;
 
     uint256 public mintPrice = 350 ether;
+
+    uint256 public royaltiesPercentage = 7;
 
     address payable public payableAddress = payable(0xB458C783f1DFCd9063003552fD4A3Fe90F45b56c);
 
@@ -93,7 +96,12 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
         super._beforeTokenTransfer(from, to, tokenId);
     }
 
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable, IERC165) returns (bool) {
         return super.supportsInterface(interfaceId);
+    }
+
+    function royaltyInfo(uint256 tokenId, uint256 salePrice) external view override (IERC2981) returns (address receiver, uint256 royaltyAmount) {
+        uint256 royaltiesValue = (mintPrice * royaltiesPercentage) / 100;
+        return (payableAddress, royaltiesValue);
     }
 }
