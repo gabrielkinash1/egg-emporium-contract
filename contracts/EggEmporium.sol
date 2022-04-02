@@ -31,7 +31,7 @@ contract EggEmporium is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausab
 
     address payable public payableAddress;
 
-    constructor(string memory defaultBaseURI) ERC721("Egg Emporium", "EE") {
+    constructor(string memory defaultBaseURI) ERC721("EE Traditional Living", "EETL") {
         _defaultBaseURI = defaultBaseURI;
     }
 
@@ -81,9 +81,26 @@ contract EggEmporium is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausab
         _burn(tokenId);
     }
 
-    function setBaseURI(string calldata newBaseURI) public onlyOwner {
-        _defaultBaseURI = newBaseURI;
+    function togglePause() external onlyOwner {
+        if (paused()) {
+            _unpause();
+        } else {
+            _pause();
+        }
     }
+
+    function setMaxTokens(uint256 newMaxTokens) external onlyOwner {
+        maxTokens = newMaxTokens;
+    }
+
+    function setMaxMintable(uint256 newMaxMintable) external onlyOwner {
+        maxMintable = newMaxMintable;
+    }
+
+    function setMaxGiveaway(uint256 newMaxGiveaway) external onlyOwner {
+        maxGiveaway = newMaxGiveaway;
+    }
+    
 
     function setPayableAddress(address newPayableAddress) public onlyOwner {
         payableAddress = payable(newPayableAddress);
@@ -91,6 +108,10 @@ contract EggEmporium is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausab
 
     function setMintPrice(uint256 newMintPrice) public onlyOwner {
         mintPrice = newMintPrice;
+    }
+
+    function setBaseURI(string calldata newBaseURI) public onlyOwner {
+        _defaultBaseURI = newBaseURI;
     }
 
     function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
