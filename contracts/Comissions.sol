@@ -26,7 +26,9 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
 
     string private _defaultBaseURI;
 
-    constructor() ERC721("EE Comissions", "EEC") {}
+    constructor() ERC721("EE Comissions", "EEC") {
+        _tokenIds.increment();
+    }
 
     modifier whenCallerCanGiveaway() {
         if (owner() == _msgSender()) {
@@ -57,6 +59,10 @@ contract Comissions is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausabl
         for (uint256 i = 0; i < quantity; i++) {
             internalMint(msg.sender, tokenId + i);
         }
+    }
+
+    function burn(uint256 tokenId) external onlyOwner {
+        super._burn(tokenId);
     }
 
     function internalMint(address to, uint256 tokenId) internal {

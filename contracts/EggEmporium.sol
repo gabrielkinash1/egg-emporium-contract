@@ -76,6 +76,11 @@ contract EggEmporium is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausab
         _tokenIds.increment();
     }
 
+    function burn(uint256 tokenId) public {
+        require(ownerOf(tokenId) == msg.sender, "Address not authorized to burn");
+        _burn(tokenId);
+    }
+
     function setBaseURI(string calldata newBaseURI) public onlyOwner {
         _defaultBaseURI = newBaseURI;
     }
