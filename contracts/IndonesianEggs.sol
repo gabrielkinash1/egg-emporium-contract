@@ -116,6 +116,16 @@ contract IndonesianEggs is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pau
         _defaultBaseURI = newURI;
     }
 
+    function makeAvailable(uint256 tokenId) public onlyOwner {
+        mintAvailable[tokenId] = true;
+    }
+
+    function makeAvailables(uint256[] calldata tokenIds) public onlyOwner {
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            mintAvailable[tokenIds[i]] = true;
+        }
+    }
+
     function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
         if (mintAvailable[tokenId]) {
             return _baseURI();
